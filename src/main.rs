@@ -1,5 +1,10 @@
 use ansi_term::Colour::Blue;
+// use std::{collections::HashMap, io::Read};
 use std::fs::File;
+use std::io::Write;
+use crypto::digest::Digest;
+use crypto::sha2::Sha512;
+// use serde::{Serialize, Deserialize};
 use std::io::stdin;
 
 
@@ -8,6 +13,7 @@ const SAVE_FILE: &str = "save.txt";
 
 fn main() {
     log_starting_screen();
+    verify_first_run();
 }
 
 
@@ -50,6 +56,7 @@ fn verify_first_run() {
     manage_password_creation();
 }
 
+
 fn manage_password_creation() {
     println!("PASSWORD CREATION");
 
@@ -60,11 +67,12 @@ fn manage_password_creation() {
     }
 }
 
+
 fn password_creation_iteration() -> bool {
     println!("Please enter your password:    ");
 
     let mut password: String = String::new();
-    stdin().read_line(&mut password);
+    stdin().read_line(&mut password).expect("Failed to read password.");
 
     // Remove newline
     password = password.trim().to_string();
@@ -78,7 +86,7 @@ fn password_creation_iteration() -> bool {
     println!("Please repeat your password:    ");
 
     let mut repeated_password: String = String::new();
-    stdin().read_line(&mut repeated_password);
+    stdin().read_line(&mut repeated_password).expect("Failed to read repeated password.");
 
     // Remove newline
     repeated_password = repeated_password.trim().to_string();
@@ -87,4 +95,18 @@ fn password_creation_iteration() -> bool {
         println!("Passwords do not match.");
         return false;
     }
+
+    create_save_file();
+    return true;
+}
+
+fn create_save_file() {
+    const EMPTY_JSON: &str = "{}";
+
+    let mut hasher = Sha512::new();
+    hasher.input_str(&EMPTY_JSON);
+    let hash_result: String = hasher.result_str();
+
+    let mut file = File::create(SAVE_FILE).expect("Failed to create file");
+    file.write_all(hash_result.as_bytes()).expect("Failed to write file");
 }
