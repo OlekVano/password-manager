@@ -142,14 +142,108 @@ fn main_loop() {
 
     println!("{}", json_str);
 
-    let passwords: Result<HashMap<String, String>, serde_json::Error> = serde_json::from_str(&json_str);
+    let mut passwords: HashMap<String, String> = serde_json::from_str(&json_str).expect("Failed to get json from file.");
+
+    println!("COMMANDS: ");
+    println!("add <name> <password> -> add a password");
+    println!("rem <name> -> remove a password");
+    println!("get <name> -> get a password");
+    println!("edit <name> <password> -> edit a password");
 
     loop {
-        let mut password_name: String = String::new();
-        stdin().read_line(&mut password_name).expect("Failed to read password.");
-        password_name = password_name.trim().to_string();
+        let mut input: String = String::new();
+        stdin().read_line(&mut input).expect("Failed to read input.");
+        input = input.trim().to_string();
+
+        let words: Vec<&str> = input.split_whitespace().collect();
+
+        if words.len() <= 1 {
+            continue;
+        }
+
+        match words[0] {
+            "add" => add_password(&words, &mut passwords, &password),
+            "rem" => remove_password(&words, &mut passwords, &password),
+            "get" => get_password(&words, &mut passwords, &password),
+            "edit" => edit_password(&words, &mut passwords, &password),
+            _ => println!("Invalid command: {}.", words[0])
+        }
     }
 }
+
+fn add_password(words: &Vec<&str>, passwords: &mut HashMap<String, String>, password: &str) {
+    let num_words: usize = words.len();
+
+    if num_words != 3 {
+        println!("Invalid number of arguments: {}. Must be 3", num_words);
+    }
+
+    let name: &str = words[1];
+    let value: &str = words[2];
+
+    if passwords.contains_key(name) {
+        println!("Password already exists: {}.", name);
+    }
+
+    passwords.insert(name.to_string(), value.to_string());
+    save_passwords(passwords, password);
+    println!("Successfully added password {}.", name);
+}
+
+fn remove_password(words: &Vec<&str>, passwords: &mut HashMap<String, String>, password: &str) {
+    let num_words: usize = words.len();
+
+    if num_words != 2 {
+        println!("Invalid number of arguments: {}. Must be 2", num_words);
+    }
+
+    let name: &str = words[1];
+
+    if !passwords.contains_key(name) {
+        println!("Password doesn't exist: {}.", name);
+    }
+
+    passwords.remove(name);
+    save_passwords(passwords, password);
+    println!("Successfully removed password {}.", name);
+}
+
+fn get_password(words: &Vec<&str>, passwords: &mut HashMap<String, String>, password: &str) {
+    let num_words: usize = words.len();
+
+    if num_words != 2 {
+        println!("Invalid number of arguments: {}. Must be 2", num_words);
+    }
+
+    let name: &str = words[1];
+
+    if !passwords.contains_key(name) {
+        println!("Password doesn't exist: {}.", name);
+    }
+
+    println!("{}", passwords.get(name).expect("Failed to get password."));
+    save_passwords(passwords, password);
+}
+
+fn edit_password(words: &Vec<&str>, passwords: &mut HashMap<String, String>, password: &str) {
+    let num_words: usize = words.len();
+
+    if num_words != 3 {
+        println!("Invalid number of arguments: {}. Must be 3", num_words);
+    }
+
+    let name: &str = words[1];
+    let value: &str = words[2];
+
+    if !passwords.contains_key(name) {
+        println!("Password doesn't exists: {}.", name);
+    }
+
+    passwords.insert(name.to_string(), value.to_string());
+    save_passwords(passwords, password);
+    println!("Successfully edited password {}.", name);
+}
+
 fn save_passwords(passwords: &HashMap<String, String>, password: &str) {
     let json_str: String = serde_json::to_string(passwords).expect("Failed to serialize passwords.");
     let encrypted_json: String = encrypt(&json_str, password);
