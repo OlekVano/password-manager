@@ -7,5 +7,6 @@ edition = "2021"
 
 [dependencies]
 ansi_term = "0.12.1"
+magic-crypt = "3.1.12"
 rust-crypto = "0.2.36"
-serde = "1.0.188"
+serde_json = "1.0.105"

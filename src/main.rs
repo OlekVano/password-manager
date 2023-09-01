@@ -1,5 +1,5 @@
 use ansi_term::Colour::Blue;
-// use std::{collections::HashMap, io::Read};
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Write, Read, stdin};
 use magic_crypt::{new_magic_crypt, MagicCryptTrait};
@@ -11,6 +11,11 @@ const SAVE_FILE: &str = "save.txt";
 fn main() {
     log_starting_screen();
     verify_first_run();
+    main_loop();
+
+    // let string: &str = "string";
+    // println!("{}", encrypt(string, "1234"));
+    // println!("{}", decrypt(&encrypt(string, "1234"), "1234"));
 }
 
 
@@ -93,18 +98,21 @@ fn password_creation_iteration() -> bool {
         return false;
     }
 
-    create_save_file();
+    create_save_file(&password);
     return true;
 }
 
-fn create_save_file() {
+
+fn create_save_file(password: &str) {
     const EMPTY_JSON: &str = "{}";
 
-    let mut hasher = Sha512::new();
-    hasher.input_str(&EMPTY_JSON);
-    let hash_result: String = hasher.result_str();
+    let encrypted_json: String = encrypt(EMPTY_JSON, password);
 
     let mut file = File::create(SAVE_FILE).expect("Failed to create file");
+    file.write_all(encrypted_json.as_bytes()).expect("Failed to write file");
+}
+
+
 fn encrypt(string: &str, password: &str) -> String {
     let mc: magic_crypt::MagicCrypt256 = new_magic_crypt!(password, 256);
 
@@ -112,10 +120,32 @@ fn encrypt(string: &str, password: &str) -> String {
     base64
 }
 
+
 fn decrypt(base64: &str, password: &str) -> String {
     let mc: magic_crypt::MagicCrypt256 = new_magic_crypt!(password, 256);
 
-    let string: String = mc.decrypt_base64_to_string(&base64).expect("Failed to decrypt");
+    let string: String = mc.decrypt_base64_to_string(base64).expect("Failed to decrypt");
     string
 }
+
+
+fn main_loop() {
+    println!("MAIN LOOP");
+    println!("Please enter your password:    ");
+
+    let mut password: String = String::new();
+    stdin().read_line(&mut password).expect("Failed to read password.");
+    password = password.trim().to_string();
+
+    let mut file: File = File::open(SAVE_FILE).expect("Failed to open file.");
+    let mut file_contents: String = String::new();
+    file.read_to_string(&mut file_contents).expect("Failed to read file.");
+
+    println!("{} {}", file_contents, password);
+
+    let json_str: String = decrypt(&file_contents, &password);
+
+    println!("{}", json_str);
+
+    let passwords: Result<HashMap<String, String>, serde_json::Error> = serde_json::from_str(&json_str);
 }
