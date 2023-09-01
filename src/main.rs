@@ -1,11 +1,8 @@
 use ansi_term::Colour::Blue;
 // use std::{collections::HashMap, io::Read};
 use std::fs::File;
-use std::io::Write;
-use crypto::digest::Digest;
-use crypto::sha2::Sha512;
-// use serde::{Serialize, Deserialize};
-use std::io::stdin;
+use std::io::{Write, Read, stdin};
+use magic_crypt::{new_magic_crypt, MagicCryptTrait};
 
 
 const SAVE_FILE: &str = "save.txt";
@@ -108,5 +105,17 @@ fn create_save_file() {
     let hash_result: String = hasher.result_str();
 
     let mut file = File::create(SAVE_FILE).expect("Failed to create file");
-    file.write_all(hash_result.as_bytes()).expect("Failed to write file");
+fn encrypt(string: &str, password: &str) -> String {
+    let mc: magic_crypt::MagicCrypt256 = new_magic_crypt!(password, 256);
+
+    let base64: String = mc.encrypt_str_to_base64(string);
+    base64
+}
+
+fn decrypt(base64: &str, password: &str) -> String {
+    let mc: magic_crypt::MagicCrypt256 = new_magic_crypt!(password, 256);
+
+    let string: String = mc.decrypt_base64_to_string(&base64).expect("Failed to decrypt");
+    string
+}
 }
