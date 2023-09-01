@@ -1,7 +1,7 @@
 use ansi_term::Colour::Blue;
 use std::collections::HashMap;
 use std::fs::File;
-use std::io::{Write, Read, stdin};
+use std::io::{Write, Read, stdin, stdout};
 use magic_crypt::{new_magic_crypt, MagicCryptTrait};
 
 
@@ -67,7 +67,7 @@ fn manage_password_creation() {
 
 
 fn password_creation_iteration() -> bool {
-    print!("Please enter your password:    ");
+    stdout().flush().expect("Failed to flush");
 
     let mut password: String = String::new();
     stdin().read_line(&mut password).expect("Failed to read password.");
@@ -82,6 +82,7 @@ fn password_creation_iteration() -> bool {
     }
 
     print!("Please repeat your password:    ");
+    stdout().flush().expect("Failed to flush");
 
     let mut repeated_password: String = String::new();
     stdin().read_line(&mut repeated_password).expect("Failed to read repeated password.");
@@ -124,6 +125,7 @@ fn decrypt(base64: &str, password: &str) -> String {
 fn main_loop() {
     println!("MAIN LOOP");
     print!("Please enter your password:    ");
+    stdout().flush().expect("Failed to flush");
 
     let mut password: String = String::new();
     stdin().read_line(&mut password).expect("Failed to read password.");
