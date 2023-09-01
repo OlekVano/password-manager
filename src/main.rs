@@ -100,12 +100,8 @@ fn password_creation_iteration() -> bool {
 
 
 fn create_save_file(password: &str) {
-    const EMPTY_JSON: &str = "{}";
-
-    let encrypted_json: String = encrypt(EMPTY_JSON, password);
-
-    let mut file = File::create(SAVE_FILE).expect("Failed to create file");
-    file.write_all(encrypted_json.as_bytes()).expect("Failed to write file");
+    let passwords: HashMap<String, String> = HashMap::new();
+    save_passwords(&passwords, password);
 }
 
 
@@ -150,4 +146,11 @@ fn main_loop() {
         stdin().read_line(&mut password_name).expect("Failed to read password.");
         password_name = password_name.trim().to_string();
     }
+}
+fn save_passwords(passwords: &HashMap<String, String>, password: &str) {
+    let json_str: String = serde_json::to_string(passwords).expect("Failed to serialize passwords.");
+    let encrypted_json: String = encrypt(&json_str, password);
+
+    let mut file: File = File::create(SAVE_FILE).expect("Failed to create file");
+    file.write_all(encrypted_json.as_bytes()).expect("Failed to write file");
 }
