@@ -44,7 +44,7 @@ fn log_starting_screen() {
 fn verify_first_run() {
     let res: Result<File, std::io::Error> = File::open(SAVE_FILE);
 
-    let file = res.ok();
+    let file: Option<File> = res.ok();
 
     // File already exists. Not first run.
     if file.is_some() {
@@ -67,6 +67,7 @@ fn manage_password_creation() {
 
 
 fn password_creation_iteration() -> bool {
+    print!("Please create your password:    ");
     stdout().flush().expect("Failed to flush");
 
     let mut password: String = String::new();
