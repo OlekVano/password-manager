@@ -2,6 +2,7 @@ use ansi_term::Colour::Blue;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Write, Read, stdin, stdout};
+use std::process;
 use magic_crypt::{new_magic_crypt, MagicCryptTrait};
 
 
@@ -149,6 +150,7 @@ fn main_loop() {
     println!("rem <name> -> remove a password");
     println!("get <name> -> get a password");
     println!("edit <name> <password> -> edit a password");
+    println!("exit -> exists the application");
 
     loop {
         let mut input: String = String::new();
@@ -157,7 +159,7 @@ fn main_loop() {
 
         let words: Vec<&str> = input.split_whitespace().collect();
 
-        if words.len() <= 1 {
+        if words.len() == 0 {
             continue;
         }
 
@@ -166,6 +168,7 @@ fn main_loop() {
             "rem" => remove_password(&words, &mut passwords, &password),
             "get" => get_password(&words, &mut passwords, &password),
             "edit" => edit_password(&words, &mut passwords, &password),
+            "exit" => {process::exit(0);},
             _ => println!("Invalid command: {}.", words[0])
         }
     }
@@ -176,6 +179,7 @@ fn add_password(words: &Vec<&str>, passwords: &mut HashMap<String, String>, pass
 
     if num_words != 3 {
         println!("Invalid number of arguments: {}. Must be 3", num_words);
+        return;
     }
 
     let name: &str = words[1];
@@ -183,6 +187,7 @@ fn add_password(words: &Vec<&str>, passwords: &mut HashMap<String, String>, pass
 
     if passwords.contains_key(name) {
         println!("Password already exists: {}.", name);
+        return;
     }
 
     passwords.insert(name.to_string(), value.to_string());
@@ -195,12 +200,14 @@ fn remove_password(words: &Vec<&str>, passwords: &mut HashMap<String, String>, p
 
     if num_words != 2 {
         println!("Invalid number of arguments: {}. Must be 2", num_words);
+        return;
     }
 
     let name: &str = words[1];
 
     if !passwords.contains_key(name) {
         println!("Password doesn't exist: {}.", name);
+        return;
     }
 
     passwords.remove(name);
@@ -213,12 +220,14 @@ fn get_password(words: &Vec<&str>, passwords: &mut HashMap<String, String>, pass
 
     if num_words != 2 {
         println!("Invalid number of arguments: {}. Must be 2", num_words);
+        return;
     }
 
     let name: &str = words[1];
 
     if !passwords.contains_key(name) {
         println!("Password doesn't exist: {}.", name);
+        return;
     }
 
     println!("{}", passwords.get(name).expect("Failed to get password."));
@@ -230,6 +239,7 @@ fn edit_password(words: &Vec<&str>, passwords: &mut HashMap<String, String>, pas
 
     if num_words != 3 {
         println!("Invalid number of arguments: {}. Must be 3", num_words);
+        return;
     }
 
     let name: &str = words[1];
@@ -237,6 +247,7 @@ fn edit_password(words: &Vec<&str>, passwords: &mut HashMap<String, String>, pas
 
     if !passwords.contains_key(name) {
         println!("Password doesn't exists: {}.", name);
+        return;
     }
 
     passwords.insert(name.to_string(), value.to_string());
