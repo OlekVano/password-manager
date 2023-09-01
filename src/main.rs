@@ -12,10 +12,6 @@ fn main() {
     log_starting_screen();
     verify_first_run();
     main_loop();
-
-    // let string: &str = "string";
-    // println!("{}", encrypt(string, "1234"));
-    // println!("{}", decrypt(&encrypt(string, "1234"), "1234"));
 }
 
 
@@ -71,7 +67,7 @@ fn manage_password_creation() {
 
 
 fn password_creation_iteration() -> bool {
-    println!("Please enter your password:    ");
+    print!("Please enter your password:    ");
 
     let mut password: String = String::new();
     stdin().read_line(&mut password).expect("Failed to read password.");
@@ -85,7 +81,7 @@ fn password_creation_iteration() -> bool {
         return false;
     }
 
-    println!("Please repeat your password:    ");
+    print!("Please repeat your password:    ");
 
     let mut repeated_password: String = String::new();
     stdin().read_line(&mut repeated_password).expect("Failed to read repeated password.");
@@ -131,7 +127,7 @@ fn decrypt(base64: &str, password: &str) -> String {
 
 fn main_loop() {
     println!("MAIN LOOP");
-    println!("Please enter your password:    ");
+    print!("Please enter your password:    ");
 
     let mut password: String = String::new();
     stdin().read_line(&mut password).expect("Failed to read password.");
@@ -148,4 +144,10 @@ fn main_loop() {
     println!("{}", json_str);
 
     let passwords: Result<HashMap<String, String>, serde_json::Error> = serde_json::from_str(&json_str);
+
+    loop {
+        let mut password_name: String = String::new();
+        stdin().read_line(&mut password_name).expect("Failed to read password.");
+        password_name = password_name.trim().to_string();
+    }
 }
