@@ -114,6 +114,14 @@ fn decrypt(base64: &str, password: &str) -> String {
     string
 }
 
+fn log_commands() {
+    println!("COMMANDS: ");
+    println!("add <name> <password>     -> add a password");
+    println!("rem <name>                -> remove a password");
+    println!("get <name>                -> get a password");
+    println!("edit <name> <password>    -> edit a password");
+    println!("exit                      -> exist the application");
+}
 
 fn main_loop() {
     println!("MAIN LOOP");
@@ -134,32 +142,31 @@ fn main_loop() {
 
     let mut passwords: HashMap<String, String> = serde_json::from_str(&json_str).expect("Failed to get json from file.");
 
-    println!("COMMANDS: ");
-    println!("add <name> <password> -> add a password");
-    println!("rem <name> -> remove a password");
-    println!("get <name> -> get a password");
-    println!("edit <name> <password> -> edit a password");
-    println!("exit -> exists the application");
+    log_commands();
 
     loop {
-        let mut input: String = String::new();
-        stdin().read_line(&mut input).expect("Failed to read input.");
-        input = input.trim().to_string();
+        main_loop_iteration(&mut passwords, &password)
+    }
+}
 
-        let words: Vec<&str> = input.split_whitespace().collect();
+fn main_loop_iteration(passwords: &mut HashMap<String, String>, password: &str) {
+    let mut input: String = String::new();
+    stdin().read_line(&mut input).expect("Failed to read input.");
+    input = input.trim().to_string();
 
-        if words.len() == 0 {
-            continue;
-        }
+    let words: Vec<&str> = input.split_whitespace().collect();
 
-        match words[0] {
-            "add" => add_password(&words, &mut passwords, &password),
-            "rem" => remove_password(&words, &mut passwords, &password),
-            "get" => get_password(&words, &mut passwords, &password),
-            "edit" => edit_password(&words, &mut passwords, &password),
-            "exit" => {process::exit(0);},
-            _ => println!("Invalid command: {}.", words[0])
-        }
+    if words.len() == 0 {
+        return;
+    }
+
+    match words[0] {
+        "add" => add_password(&words, passwords, password),
+        "rem" => remove_password(&words, passwords, password),
+        "get" => get_password(&words, passwords, password),
+        "edit" => edit_password(&words, passwords, password),
+        "exit" => {process::exit(0);},
+        _ => println!("Invalid command: {}.", words[0])
     }
 }
 
