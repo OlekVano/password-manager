@@ -1,9 +1,10 @@
 use ansi_term::Colour::Blue;
 use std::collections::HashMap;
 use std::fs::File;
-use std::io::{Write, Read, stdin, stdout};
+use std::io::{Write, Read, stdin};
 use std::process;
 use magic_crypt::{new_magic_crypt, MagicCryptTrait};
+use rpassword;
 
 
 const SAVE_FILE: &str = "save.txt";
@@ -68,12 +69,7 @@ fn manage_password_creation() {
 
 
 fn password_creation_iteration() -> bool {
-    print!("Please create your password:    ");
-    stdout().flush().expect("Failed to flush");
-
-    let mut password: String = String::new();
-    stdin().read_line(&mut password).expect("Failed to read password.");
-
+    let mut password: String = rpassword::prompt_password("Please create your password:    ").expect("Failed to read password.");
     // Remove newline
     password = password.trim().to_string();
 
@@ -83,12 +79,7 @@ fn password_creation_iteration() -> bool {
         return false;
     }
 
-    print!("Please repeat your password:    ");
-    stdout().flush().expect("Failed to flush");
-
-    let mut repeated_password: String = String::new();
-    stdin().read_line(&mut repeated_password).expect("Failed to read repeated password.");
-
+    let mut repeated_password: String = rpassword::prompt_password("Please repeat your password:    ").expect("Failed to read repeated password.");
     // Remove newline
     repeated_password = repeated_password.trim().to_string();
 
@@ -126,11 +117,9 @@ fn decrypt(base64: &str, password: &str) -> String {
 
 fn main_loop() {
     println!("MAIN LOOP");
-    print!("Please enter your password:    ");
-    stdout().flush().expect("Failed to flush");
 
-    let mut password: String = String::new();
-    stdin().read_line(&mut password).expect("Failed to read password.");
+    let mut password: String = rpassword::prompt_password("Please enter your password:    ").expect("Failed to read repeated password.Failed to read password.");
+    // Remove newline
     password = password.trim().to_string();
 
     let mut file: File = File::open(SAVE_FILE).expect("Failed to open file.");
