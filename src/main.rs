@@ -5,6 +5,8 @@ use std::io::{Write, Read, stdin};
 use std::process;
 use magic_crypt::{new_magic_crypt, MagicCryptTrait};
 use rpassword;
+use clipboard::ClipboardContext;
+use clipboard::ClipboardProvider;
 
 
 const SAVE_FILE: &str = "save.txt";
@@ -229,8 +231,9 @@ fn get_password(words: &Vec<&str>, passwords: &mut HashMap<String, String>, pass
         return;
     }
 
-    println!("{}", passwords.get(name).expect("Failed to get password."));
+    to_clipboard(passwords.get(name).expect("Failed to get password."));
     save_passwords(passwords, password);
+    println!("Password {} has been successfully copied to the clipboard.", name);
 }
 
 fn edit_password(words: &Vec<&str>, passwords: &mut HashMap<String, String>, password: &str) {
@@ -243,14 +246,14 @@ fn edit_password(words: &Vec<&str>, passwords: &mut HashMap<String, String>, pas
 
     let name: &str = words[1];
     
-    let mut value: String = rpassword::prompt_password("Please enter the password:    ").expect("Failed to read password.");
-    // Remove newline
-    value = value.trim().to_string();
-
     if !passwords.contains_key(name) {
         println!("Password doesn't exists: {}.", name);
         return;
     }
+
+    let mut value: String = rpassword::prompt_password("Please enter the password:    ").expect("Failed to read password.");
+    // Remove newline
+    value = value.trim().to_string();
 
     passwords.insert(name.to_string(), value.to_string());
     save_passwords(passwords, password);
@@ -263,4 +266,9 @@ fn save_passwords(passwords: &HashMap<String, String>, password: &str) {
 
     let mut file: File = File::create(SAVE_FILE).expect("Failed to create file");
     file.write_all(encrypted_json.as_bytes()).expect("Failed to write file");
+}
+
+fn to_clipboard(text: &str) {
+    let mut ctx: ClipboardContext = ClipboardProvider::new().expect("Failed to get clipboard context.");
+    ctx.set_contents(text.to_owned()).expect("Failed to copy text to clipboard.");
 }
