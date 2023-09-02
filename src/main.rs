@@ -122,6 +122,7 @@ fn log_commands() {
     println!("rem <name>        -> remove a password");
     println!("get <name>        -> get a password");
     println!("edit <name>       -> edit a password");
+    println!("help              -> show these commands");
     println!("exit              -> exit the application");
 }
 
@@ -168,6 +169,7 @@ fn main_loop_iteration(passwords: &mut HashMap<String, String>, password: &str) 
         "get" => get_password(&words, passwords, password),
         "edit" => edit_password(&words, passwords, password),
         "exit" => process::exit(0),
+        "help" => log_commands(),
         _ => println!("Invalid command: {}.", words[0])
     }
 }
