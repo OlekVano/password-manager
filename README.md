@@ -1,4 +1,4 @@
-![Alt Text](https://github.com/OlekVano/password-manager/blob/main/images/main.png)
+![Alt Text](https://github.com/OlekVano/password-manager/blob/master/images/main.png)
 
 A simple command-line password manager written in Rust. It allows you to securely store and manage your passwords using strong encryption. Here's a brief overview of its features and how to use it:
 
