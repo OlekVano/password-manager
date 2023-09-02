@@ -116,17 +116,17 @@ fn decrypt(base64: &str, password: &str) -> String {
 
 fn log_commands() {
     println!("COMMANDS: ");
-    println!("add <name> <password>     -> add a password");
-    println!("rem <name>                -> remove a password");
-    println!("get <name>                -> get a password");
-    println!("edit <name> <password>    -> edit a password");
-    println!("exit                      -> exist the application");
+    println!("add <name>        -> add a password");
+    println!("rem <name>        -> remove a password");
+    println!("get <name>        -> get a password");
+    println!("edit <name>       -> edit a password");
+    println!("exit              -> exit the application");
 }
 
 fn main_loop() {
     println!("MAIN LOOP");
 
-    let mut password: String = rpassword::prompt_password("Please enter your password:    ").expect("Failed to read repeated password.Failed to read password.");
+    let mut password: String = rpassword::prompt_password("Please enter your password:    ").expect("Failed to read password.");
     // Remove newline
     password = password.trim().to_string();
 
@@ -165,7 +165,7 @@ fn main_loop_iteration(passwords: &mut HashMap<String, String>, password: &str) 
         "rem" => remove_password(&words, passwords, password),
         "get" => get_password(&words, passwords, password),
         "edit" => edit_password(&words, passwords, password),
-        "exit" => {process::exit(0);},
+        "exit" => process::exit(0),
         _ => println!("Invalid command: {}.", words[0])
     }
 }
@@ -173,18 +173,21 @@ fn main_loop_iteration(passwords: &mut HashMap<String, String>, password: &str) 
 fn add_password(words: &Vec<&str>, passwords: &mut HashMap<String, String>, password: &str) {
     let num_words: usize = words.len();
 
-    if num_words != 3 {
-        println!("Invalid number of arguments: {}. Must be 3", num_words);
+    if num_words != 2 {
+        println!("Invalid number of arguments: {}. Must be 2", num_words);
         return;
     }
 
     let name: &str = words[1];
-    let value: &str = words[2];
 
     if passwords.contains_key(name) {
         println!("Password already exists: {}.", name);
         return;
     }
+
+    let mut value: String = rpassword::prompt_password("Please enter the password:    ").expect("Failed to read password.");
+    // Remove newline
+    value = value.trim().to_string();
 
     passwords.insert(name.to_string(), value.to_string());
     save_passwords(passwords, password);
@@ -233,13 +236,16 @@ fn get_password(words: &Vec<&str>, passwords: &mut HashMap<String, String>, pass
 fn edit_password(words: &Vec<&str>, passwords: &mut HashMap<String, String>, password: &str) {
     let num_words: usize = words.len();
 
-    if num_words != 3 {
-        println!("Invalid number of arguments: {}. Must be 3", num_words);
+    if num_words != 2 {
+        println!("Invalid number of arguments: {}. Must be 2", num_words);
         return;
     }
 
     let name: &str = words[1];
-    let value: &str = words[2];
+    
+    let mut value: String = rpassword::prompt_password("Please enter the password:    ").expect("Failed to read password.");
+    // Remove newline
+    value = value.trim().to_string();
 
     if !passwords.contains_key(name) {
         println!("Password doesn't exists: {}.", name);
